@@ -1,5 +1,7 @@
 name: Read-only Bazaar observation
 on:
+  schedule:
+    - cron: '17 6 * * *'
   workflow_dispatch:
     inputs:
       pages: {description: Bounded pages to request (1-10), required: false, default: '5', type: string}
@@ -25,7 +27,8 @@ jobs:
             git worktree add --orphan -b evidence-data ../evidence
           fi
       - name: Restore, collect, report
-        env: {PAGES: "${{ inputs.pages || '5' }}"}
+        env:
+          PAGES: ${{ inputs.pages || '5' }}
         run: |
           mkdir -p project/data
           if [ -f evidence/state/evidence.sqlite ]; then cp evidence/state/evidence.sqlite project/data/evidence.sqlite; fi
