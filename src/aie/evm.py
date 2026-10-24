@@ -8,6 +8,48 @@ def rpc(method,params):
  with urllib.request.urlopen(q,timeout=15) as r:v=json.load(r)
  if v.get('error'):raise RuntimeError(str(v['error']))
  return v.get('result')
+
+def verify_transaction(tx_hash,event_index=None):
+ """Re-fetch and verify one Base USDC transfer at the safe block tag.
+
+ The outer transaction sender is kept separate from ERC-20 Transfer.from: for
+ relayed ERC-3009 transfers they need not be the same address.
+ """
+ if not isinstance(tx_hash,str) or len(tx_hash)!=66 or not tx_hash.startswith('0x'):
+  raise ValueError('expected a 32-byte transaction hash')
+ if rpc('eth_chainId',[])!=CHAIN:raise RuntimeError('Wrong chain')
+ safe=rpc('eth_getBlockByNumber',['safe',False])
+ receipt=rpc('eth_getTransactionReceipt',[tx_hash])
+ tx=rpc('eth_getTransactionByHash',[tx_hash])
+ if not isinstance(receipt,dict) or not isinstance(tx,dict):raise RuntimeError('Transaction or receipt unavailable')
+ if receipt.get('transactionHash','').lower()!=tx_hash.lower() or tx.get('hash','').lower()!=tx_hash.lower():raise RuntimeError('Transaction/receipt hash mismatch')
+ if receipt.get('status')!='0x1':raise RuntimeError('Transaction did not succeed')
+ block_number=int(receipt['blockNumber'],16)
+ safe_number=int(safe['number'],16)
+ block=rpc('eth_getBlockByNumber',[receipt['blockNumber'],False])
+ if not isinstance(block,dict) or block.get('hash','').lower()!=receipt.get('blockHash','').lower():
+  raise RuntimeError('Receipt block hash does not match canonical block')
+ if block_number>safe_number:raise RuntimeError('Transaction is not at or below the safe block')
+ found=[]
+ for log in receipt.get('logs',[]):
+  topics=log.get('topics',[])
+  if log.get('address','').lower()!=USDC or len(topics)<3 or topics[0].lower()!=TRANSFER:continue
+  idx=int(log['logIndex'],16)
+  if event_index is not None and idx!=int(event_index):continue
+  if log.get('removed'):continue
+  if len(topics[1])!=66 or len(topics[2])!=66:continue
+  found.append({'log_index':idx,'asset':USDC,'from':'0x'+topics[1][-40:].lower(),
+   'to':'0x'+topics[2][-40:].lower(),'amount_base':str(int(log['data'],16))})
+ if len(found)!=1:raise RuntimeError('Expected exactly one matching canonical Base USDC Transfer log')
+ transfer=found[0]
+ timestamp=datetime.fromtimestamp(int(block['timestamp'],16),timezone.utc).isoformat()
+ return {'status':'LEDGER_CONFIRMED','chain_id':8453,'network':'eip155:8453',
+  'transaction_hash':tx_hash.lower(),'block_number':block_number,'block_hash':block['hash'].lower(),
+  'block_time':timestamp,'finality':'SAFE','receipt_status':'SUCCESS',
+  'outer_transaction_from':tx['from'].lower(),'outer_transaction_to':tx.get('to',None),
+  'transfer':transfer,'amount_decimals':'6','amount_normalized':str(Decimal(transfer['amount_base'])/Decimal(10**6)),
+  'source_ref':f'{RPC} eth_getTransactionReceipt + eth_getTransactionByHash + safe block {safe_number}',
+  'resource_attribution':'NOT_ESTABLISHED','independent_buyer':'NOT_ESTABLISHED'}
 def collect(db,lookback=100,limit=25):
  if not 1<=lookback<=500 or not 1<=limit<=25:raise ValueError('RPC bounds exceeded')
  if rpc('eth_chainId',[])!=CHAIN:raise RuntimeError('Wrong chain')

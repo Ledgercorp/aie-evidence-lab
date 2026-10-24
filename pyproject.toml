@@ -6,6 +6,7 @@ name = "aie-evidence-lab"
 version = "0.1.0"
 requires-python = ">=3.12"
 description = "Read-only x402 newcomer demand observatory"
+dependencies = ["eth-account>=0.13,<1"]
 [project.scripts]
 aie = "aie.cli:main"
 [tool.setuptools]

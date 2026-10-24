@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS resources(id TEXT PRIMARY KEY,merchant_id TEXT,origin
 CREATE TABLE IF NOT EXISTS payments(chain TEXT NOT NULL,tx_id TEXT NOT NULL,event_index TEXT NOT NULL,block_number INTEGER,block_time TEXT,sender TEXT,recipient TEXT,asset TEXT,amount_base TEXT,decimals INTEGER,amount_normalized TEXT,finality TEXT NOT NULL,usd_estimate TEXT,usd_basis TEXT,PRIMARY KEY(chain,tx_id,event_index));
 CREATE TABLE IF NOT EXISTS payment_attributions(chain TEXT NOT NULL,tx_id TEXT NOT NULL,event_index TEXT NOT NULL,merchant_id TEXT,resource_id TEXT,level TEXT NOT NULL,confidence TEXT NOT NULL,evidence_ref TEXT,UNIQUE(chain,tx_id,event_index,merchant_id,resource_id));
 CREATE TABLE IF NOT EXISTS evidence(id INTEGER PRIMARY KEY,kind TEXT NOT NULL,classification TEXT NOT NULL,source_ref TEXT NOT NULL,provenance TEXT NOT NULL,confidence TEXT);
+CREATE TABLE IF NOT EXISTS payment_attribution_checks(evidence_hash TEXT PRIMARY KEY,checked_at TEXT NOT NULL,resource_id TEXT,tx_hash TEXT,status TEXT NOT NULL,classification TEXT NOT NULL,evidence_json TEXT NOT NULL,result_json TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_attribution_checks_resource ON payment_attribution_checks(resource_id,status);
 """
 def connect(path):
  d=sqlite3.connect(path);d.executescript(SCHEMA);return d

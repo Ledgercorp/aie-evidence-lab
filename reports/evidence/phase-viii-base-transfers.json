@@ -1,0 +1,175 @@
+{
+  "bazaar_association": {
+    "local_database_sha256": "30071d54d5e89d8586130625ac2cc0c23a862ac359c6d44c9eed63dce5d52c0c",
+    "local_snapshot_id": "3b02b9c6-4463-44b3-84c7-76c094833196",
+    "matching_resource_count": 18,
+    "recipient": "0x058d0cc5cc97e61e8a9f38d6d6365bce525921b2",
+    "resources": [
+      {
+        "metadata_hash": "f2f4d63ff122aa7ad21bbf4cd40dd956804c52c66c783ced1037556792e6a966",
+        "resource_id": "https://web.cyberwarex.com/fetch",
+        "resource_url": "https://web.cyberwarex.com/fetch"
+      },
+      {
+        "metadata_hash": "f2031331881170a32265f0e855d786892ddfb6e8ab394c258bb6359190c54353",
+        "resource_id": "https://search.cyberwarex.com/search",
+        "resource_url": "https://search.cyberwarex.com/search"
+      },
+      {
+        "metadata_hash": "668be58925d761d5affd03e57ea30044aa758b3b53dee860d6be272ad9743d12",
+        "resource_id": "https://search.cyberwarex.com/news",
+        "resource_url": "https://search.cyberwarex.com/news"
+      },
+      {
+        "metadata_hash": "c6dd422cd1a085311a816bbd52399841c3aa100542179190f1ecb0ce2a63e67c",
+        "resource_id": "https://weather.cyberwarex.com/forecast",
+        "resource_url": "https://weather.cyberwarex.com/forecast"
+      },
+      {
+        "metadata_hash": "81adb59c3d37c07c8f0658a5c2ab2b837044acb3a0131be178aa48287800ba98",
+        "resource_id": "https://simulate.cyberwarex.com/decode",
+        "resource_url": "https://simulate.cyberwarex.com/decode"
+      },
+      {
+        "metadata_hash": "2ef63d1dcb68472ce0666de2550efc2d93a82adebcd879fc68fcd07fab55fd3c",
+        "resource_id": "https://chain.cyberwarex.com/ens",
+        "resource_url": "https://chain.cyberwarex.com/ens"
+      },
+      {
+        "metadata_hash": "558834ce2f6548973ef625c318079c3ba21997354290644430890070cabee0cf",
+        "resource_id": "https://video.cyberwarex.com/transcript",
+        "resource_url": "https://video.cyberwarex.com/transcript"
+      },
+      {
+        "metadata_hash": "aee7414c8b0a56a63c57df493ee2d8d28545a99d2175c1ec81d6bca2b20b1f39",
+        "resource_id": "https://video.cyberwarex.com/meta",
+        "resource_url": "https://video.cyberwarex.com/meta"
+      },
+      {
+        "metadata_hash": "5f6e7093510291cbb93a2b9d775c14d04c548848fd5d3acb0c3c435749bc8c70",
+        "resource_id": "https://chain.cyberwarex.com/block",
+        "resource_url": "https://chain.cyberwarex.com/block"
+      },
+      {
+        "metadata_hash": "c4ae41282c81ec4e99dff61f48ea25c8b94ecf02fbf161444a3de6038dd8ea63",
+        "resource_id": "https://sanctions.cyberwarex.com/screen",
+        "resource_url": "https://sanctions.cyberwarex.com/screen"
+      },
+      {
+        "metadata_hash": "cb2d98eb384330d48c48c9ba960a02cc674ff93c9a68052b167bd2e4974fa7f2",
+        "resource_id": "https://safe.cyberwarex.com/check",
+        "resource_url": "https://safe.cyberwarex.com/check"
+      },
+      {
+        "metadata_hash": "17ff8ee6f87f8c9fe242ac3d216b813b02df7f1dbc6d2e7c6f0b0a2600049db0",
+        "resource_id": "https://search.cyberwarex.com/contents",
+        "resource_url": "https://search.cyberwarex.com/contents"
+      },
+      {
+        "metadata_hash": "c8f113ac237f52dff32dee5ad0249a987042d81edea7a7ee4dd1f5f31527deaa",
+        "resource_id": "https://web.cyberwarex.com/pdf",
+        "resource_url": "https://web.cyberwarex.com/pdf"
+      },
+      {
+        "metadata_hash": "18963d5570653688a3f21428ce7c1a763c971ad9b9c7c7ab7896ed4479f0b11d",
+        "resource_id": "https://oracle.cyberwarex.com/verdict",
+        "resource_url": "https://oracle.cyberwarex.com/verdict"
+      },
+      {
+        "metadata_hash": "fdd372df9a7eba4a6b89d8263d0e8f3790d20c76399bc681729b4696052c7f33",
+        "resource_id": "https://chain.cyberwarex.com/derivatives",
+        "resource_url": "https://chain.cyberwarex.com/derivatives"
+      },
+      {
+        "metadata_hash": "d8a7516cb3a36c13ad094ec0a1f3c72c2dab2e338ceb5ec1134e91cff6ea8bd1",
+        "resource_id": "https://chain.cyberwarex.com/token",
+        "resource_url": "https://chain.cyberwarex.com/token"
+      },
+      {
+        "metadata_hash": "58eff6cd70059f4b3adb60368104a541a8394737057cef3dc70a926e19c9abc9",
+        "resource_id": "https://oracle.cyberwarex.com/contract",
+        "resource_url": "https://oracle.cyberwarex.com/contract"
+      },
+      {
+        "metadata_hash": "de1df32be34e788589fe5f005d3eea7b7a8f9c26d7ca346e595234e3a804bc24",
+        "resource_id": "https://web.cyberwarex.com/screenshot",
+        "resource_url": "https://web.cyberwarex.com/screenshot"
+      }
+    ],
+    "scope_note": "Local historical discovery snapshot; the evidence-data branch database currently holds the two separate Actions discovery snapshots but no payment rows."
+  },
+  "classification": {
+    "independent_buyer": "NOT_ESTABLISHED",
+    "ledger": "LEDGER_CONFIRMED",
+    "merchant": "MERCHANT_ASSOCIATED_BY_BAZAAR_PAYTO_ADDRESS_MATCH",
+    "resource": "NOT_ESTABLISHED"
+  },
+  "evidence_type": "live_public_chain_reverification",
+  "source": {
+    "asset_contract": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "chain_id": "0x2105",
+    "methods": [
+      "eth_chainId",
+      "eth_getBlockByNumber(safe)",
+      "eth_getTransactionReceipt",
+      "eth_getTransactionByHash",
+      "eth_getBlockByNumber(transaction block)"
+    ],
+    "rpc": "https://base-rpc.publicnode.com",
+    "transfer_topic": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+  },
+  "synthetic_data": false,
+  "transactions": [
+    {
+      "amount_decimals": "6",
+      "amount_normalized": "0.003",
+      "block_hash": "0x1713a8e22123115aae5993f5e17d7a899e2943069df196197d59e61ed285c741",
+      "block_number": 53038428,
+      "block_time": "2026-10-24T18:23:23+00:00",
+      "chain_id": 8453,
+      "finality": "SAFE",
+      "independent_buyer": "NOT_ESTABLISHED",
+      "network": "eip155:8453",
+      "outer_transaction_from": "0x59b7ebc67a3d627fabaf06768c818638452ae704",
+      "outer_transaction_to": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "receipt_status": "SUCCESS",
+      "resource_attribution": "NOT_ESTABLISHED",
+      "source_ref": "https://base-rpc.publicnode.com eth_getTransactionReceipt + eth_getTransactionByHash + safe block 53040668",
+      "status": "LEDGER_CONFIRMED",
+      "transaction_hash": "0xc982c1ae9755146fc25e71bb693b9eaf7ea913329894fb6e88253bc42b1b40b6",
+      "transfer": {
+        "amount_base": "3000",
+        "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "from": "0x10fd06ebafc77a21bdf4f2a8768686860fe74458",
+        "log_index": 51,
+        "to": "0x058d0cc5cc97e61e8a9f38d6d6365bce525921b2"
+      }
+    },
+    {
+      "amount_decimals": "6",
+      "amount_normalized": "0.003",
+      "block_hash": "0xb35c99cc507f956a0c6848c974a58050e11fb68850e07075e3b1e48c4429969b",
+      "block_number": 53038138,
+      "block_time": "2026-10-24T18:13:43+00:00",
+      "chain_id": 8453,
+      "finality": "SAFE",
+      "independent_buyer": "NOT_ESTABLISHED",
+      "network": "eip155:8453",
+      "outer_transaction_from": "0x2a89407a98a0732b7fd578c4e156b7166540eb5a",
+      "outer_transaction_to": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "receipt_status": "SUCCESS",
+      "resource_attribution": "NOT_ESTABLISHED",
+      "source_ref": "https://base-rpc.publicnode.com eth_getTransactionReceipt + eth_getTransactionByHash + safe block 53040668",
+      "status": "LEDGER_CONFIRMED",
+      "transaction_hash": "0xe13f1a69a46a17079227d8fea3e804726187d06f115d8eb5f53164c806635558",
+      "transfer": {
+        "amount_base": "3000",
+        "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "from": "0x9d42eba8868cfd38a50ba615ee0cf903f1bbece9",
+        "log_index": 255,
+        "to": "0x058d0cc5cc97e61e8a9f38d6d6365bce525921b2"
+      }
+    }
+  ],
+  "verified_at_utc": "2026-10-24T19:39:42.736831+00:00"
+}
