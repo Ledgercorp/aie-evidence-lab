@@ -1,0 +1,50 @@
+name: Read-only Bazaar observation
+on:
+  workflow_dispatch:
+    inputs:
+      pages: {description: "Bound pages (1-10)", required: false, default: "5", type: string}
+permissions: {contents: write}
+concurrency: {group: aie-evidence-observation, cancel-in-progress: false}
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: main, path: project, fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Restore evidence branch
+        shell: bash
+        run: |
+          cd project
+          git fetch origin evidence-data || true
+          if git show-ref --verify --quiet refs/remotes/origin/evidence-data; then
+            git worktree add ../evidence evidence-data
+          else
+            git worktree add --orphan -b evidence-data ../evidence
+          fi
+      - name: Restore, collect, report
+        env: {PAGES: "${{ inputs.pages || '5' }}"}
+        run: |
+          mkdir -p project/data
+          if [ -f evidence/state/evidence.sqlite ]; then cp evidence/state/evidence.sqlite project/data/evidence.sqlite; fi
+          case "$PAGES" in ''|*[!0-9]*) exit 2;; esac
+          [ "$PAGES" -ge 1 ] && [ "$PAGES" -le 10 ]
+          cd project
+          PYTHONPATH=src python -m aie collect --source bazaar --max-pages "$PAGES" --db data/evidence.sqlite
+          PYTHONPATH=src python -m aie report --db data/evidence.sqlite > reports/action-report.md
+          PYTHONPATH=src python -m aie verify --db data/evidence.sqlite
+      - name: Persist and verify
+        run: |
+          mkdir -p evidence/state evidence/reports
+          cp project/data/evidence.sqlite evidence/state/evidence.sqlite
+          cp project/reports/action-report.md evidence/reports/$(date -u +%Y%m%dT%H%M%SZ).md
+          cd evidence
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add state/evidence.sqlite reports
+          git commit -m "Record Bazaar observation" || true
+          git show HEAD:state/evidence.sqlite > /tmp/verified.sqlite
+          cmp state/evidence.sqlite /tmp/verified.sqlite
+          git push origin HEAD:evidence-data
