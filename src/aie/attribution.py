@@ -115,29 +115,46 @@ def verify_purchase(evidence: dict[str, Any], *, timestamp_tolerance_seconds: in
     """
     contradictions: list[str] = []
     missing: list[str] = []
-    resource = evidence.get("resource") or {}
-    offer = evidence.get("offer") or {}
-    receipt = evidence.get("receipt") or {}
-    settlement = evidence.get("settlement") or {}
-    authorization = evidence.get("authorization") or {}
+    if not isinstance(evidence, dict):
+        evidence = {"malformed_input": repr(evidence)}
+        contradictions.append("evidence bundle must be a JSON object")
+
+    def section(name: str) -> dict[str, Any]:
+        value = evidence.get(name)
+        if value is None:
+            return {}
+        if not isinstance(value, dict):
+            contradictions.append(f"{name} evidence must be a JSON object")
+            return {}
+        return value
+
+    resource = section("resource")
+    offer = section("offer")
+    receipt = section("receipt")
+    settlement = section("settlement")
+    authorization = section("authorization")
     resource_url = resource.get("resource_url")
     try:
         offer_payload = offer.get("payload") or {}
         receipt_payload = receipt.get("payload") or {}
+        if not isinstance(offer_payload, dict) or not isinstance(receipt_payload, dict):
+            raise ValueError("signed artifact payload must be a JSON object")
         offer_signer = recover_signer(offer, "offer")
     except Exception as exc:
         offer_signer = None
         contradictions.append(f"offer signature/format invalid: {type(exc).__name__}: {exc}")
-        offer_payload = offer.get("payload") or {}
+        offer_payload = offer.get("payload") if isinstance(offer.get("payload"), dict) else {}
     try:
         receipt_signer = recover_signer(receipt, "receipt")
     except Exception as exc:
         receipt_signer = None
         contradictions.append(f"receipt signature/format invalid: {type(exc).__name__}: {exc}")
-        receipt_payload = receipt.get("payload") or {}
+        receipt_payload = receipt.get("payload") if isinstance(receipt.get("payload"), dict) else {}
 
     if not resource_url:
         missing.append("expected resource URL from retained Bazaar observation")
+    if not resource.get("pay_to"):
+        missing.append("recipient address from retained Bazaar observation")
     if not settlement:
         missing.append("ledger-confirmed transfer and finality evidence")
     if not authorization.get("evidence_ref"):
@@ -157,6 +174,8 @@ def verify_purchase(evidence: dict[str, Any], *, timestamp_tolerance_seconds: in
             contradictions.append("signed offer resource URL does not match expected Bazaar resource")
         if receipt_payload.get("resourceUrl") != resource_url:
             contradictions.append("signed receipt resource URL does not match expected Bazaar resource")
+    if resource.get("pay_to") and offer_payload.get("payTo") and str(resource["pay_to"]).lower() != str(offer_payload["payTo"]).lower():
+        contradictions.append("signed offer recipient does not match the retained Bazaar resource")
     if offer_payload.get("scheme") != "exact":
         contradictions.append("only the x402 exact scheme is supported by this verifier")
     if offer_payload.get("network") != BASE_NETWORK or receipt_payload.get("network") != BASE_NETWORK:
@@ -176,14 +195,29 @@ def verify_purchase(evidence: dict[str, Any], *, timestamp_tolerance_seconds: in
         contradictions.append("offer and receipt were signed by different addresses")
 
     if settlement:
-        if int(settlement.get("chain_id", -1)) != BASE_CHAIN_ID:
+        if settlement.get("status") != "LEDGER_CONFIRMED":
+            missing.append("ledger collector status LEDGER_CONFIRMED")
+        if settlement.get("receipt_status") != "SUCCESS":
+            contradictions.append("chain transaction receipt is not marked successful")
+        if not settlement.get("source_ref") or not settlement.get("block_hash"):
+            missing.append("reproducible settlement source reference and canonical block hash")
+        try:
+            chain_id = int(settlement.get("chain_id", -1))
+        except (TypeError, ValueError, OverflowError):
+            chain_id = -1
+        if chain_id != BASE_CHAIN_ID:
             contradictions.append("settlement chain ID is not Base mainnet 8453")
         if str(settlement.get("finality", "")).upper() not in FINALITY:
             missing.append("safe/final transaction status")
         tx_hash = str(settlement.get("transaction_hash", "")).lower()
-        if not tx_hash or tx_hash != str(receipt_payload.get("transaction", "")).lower():
+        if len(tx_hash) != 66 or not tx_hash.startswith("0x") or tx_hash != str(receipt_payload.get("transaction", "")).lower():
             contradictions.append("signed receipt transaction hash does not match verified settlement")
         transfer = settlement.get("transfer") or {}
+        if not isinstance(transfer, dict):
+            transfer = {}
+            contradictions.append("settlement transfer evidence must be a JSON object")
+        if transfer.get("log_index") is None or settlement.get("log_index") is None or str(transfer.get("log_index")) != str(settlement.get("log_index")):
+            contradictions.append("settlement event index does not identify the supplied transfer log")
         for label, actual, expected in (
             ("payer", transfer.get("from"), receipt_payload.get("payer")),
             ("recipient", transfer.get("to"), offer_payload.get("payTo")),

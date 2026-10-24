@@ -17,7 +17,7 @@ USDC = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
 
 def fixture():
     return {
-        "resource": {"id": "synthetic-resource-1", "resource_url": "https://example.invalid/data"},
+        "resource": {"id": "synthetic-resource-1", "resource_url": "https://example.invalid/data", "pay_to": PAYTO},
         "offer": {
             "format": "eip712", "payload": {
                 "version": 1, "resourceUrl": "https://example.invalid/data", "scheme": "exact",
@@ -38,9 +38,10 @@ def fixture():
         },
         "settlement": {
             "chain_id": 8453, "transaction_hash": TX, "log_index": 51,
-            "block_time": "2026-10-24T18:23:23+00:00", "finality": "SAFE",
+            "status": "LEDGER_CONFIRMED", "receipt_status": "SUCCESS", "block_hash": "0x" + "90" * 32,
+            "source_ref": "synthetic://verified-base-transfer", "block_time": "2026-10-24T18:23:23+00:00", "finality": "SAFE",
             "outer_transaction_from": "0x" + "78" * 20,
-            "transfer": {"from": PAYER, "to": PAYTO, "asset": USDC, "amount_base": "3000"},
+            "transfer": {"log_index": 51, "from": PAYER, "to": PAYTO, "asset": USDC, "amount_base": "3000"},
         },
     }
 
@@ -72,6 +73,11 @@ class AttributionTests(unittest.TestCase):
         evidence["settlement"]["transfer"]["asset"] = "0x" + "99" * 20
         self.assertIn("settlement asset does not match signed x402 evidence", self.run_valid_fixture(evidence)["contradictions"])
 
+    def test_bazaar_resource_recipient_must_match_the_signed_offer(self):
+        evidence = fixture()
+        evidence["resource"]["pay_to"] = "0x" + "99" * 20
+        self.assertIn("signed offer recipient does not match the retained Bazaar resource", self.run_valid_fixture(evidence)["contradictions"])
+
     def test_unapproved_token_cannot_become_a_purchase_even_if_offer_matches(self):
         evidence = fixture()
         evidence["offer"]["payload"]["asset"] = "0x" + "99" * 20
@@ -100,6 +106,34 @@ class AttributionTests(unittest.TestCase):
         result = self.run_valid_fixture(evidence)
         self.assertEqual(result["classification"], "UNRESOLVED")
         self.assertIn("safe/final transaction status", result["missing_evidence"])
+
+    def test_unverified_chain_bundle_is_not_attributable(self):
+        evidence = fixture()
+        evidence["settlement"]["status"] = "UNRESOLVED"
+        result = self.run_valid_fixture(evidence)
+        self.assertEqual(result["classification"], "UNRESOLVED")
+        self.assertIn("ledger collector status LEDGER_CONFIRMED", result["missing_evidence"])
+
+    def test_malformed_evidence_sections_fail_closed_without_crashing(self):
+        evidence = fixture()
+        evidence["settlement"] = ["not", "an", "object"]
+        result = verify_purchase(evidence)
+        self.assertEqual(result["classification"], "UNRESOLVED")
+        self.assertIn("settlement evidence must be a JSON object", result["contradictions"])
+
+    def test_malformed_chain_id_fails_closed_without_crashing(self):
+        evidence = fixture()
+        evidence["settlement"]["chain_id"] = "not-a-chain"
+        result = self.run_valid_fixture(evidence)
+        self.assertEqual(result["classification"], "UNRESOLVED")
+        self.assertIn("settlement chain ID is not Base mainnet 8453", result["contradictions"])
+
+    def test_malformed_transfer_object_fails_closed_without_crashing(self):
+        evidence = fixture()
+        evidence["settlement"]["transfer"] = "not-a-transfer-object"
+        result = self.run_valid_fixture(evidence)
+        self.assertEqual(result["classification"], "UNRESOLVED")
+        self.assertIn("settlement transfer evidence must be a JSON object", result["contradictions"])
 
     def test_missing_resource_signer_authorization_is_unknown(self):
         evidence = fixture()
