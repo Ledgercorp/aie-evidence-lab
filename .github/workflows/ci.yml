@@ -1,0 +1,12 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: PYTHONPATH=src python -m unittest discover -s tests
+      - run: PYTHONPATH=src python -m aie verify --db /tmp/evidence.sqlite
+      - run: PYTHONPATH=src python -m aie report --db /tmp/evidence.sqlite
