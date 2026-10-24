@@ -25,7 +25,7 @@ class Phase7(unittest.TestCase):
   with patch('aie.evm.rpc',side_effect=rpc):collect(d,20)
   with patch('aie.evm.rpc',side_effect=rpc):collect(d,20)
   self.assertEqual(d.execute('select count(*) from payments').fetchone()[0],1)
-  self.assertEqual(d.execute('select amount_normalized,finality from payments').fetchone(),('.012','SAFE'))
+  self.assertEqual(d.execute('select amount_normalized,finality from payments').fetchone(),('0.012','SAFE'))
   self.assertEqual(d.execute('select level from payment_attributions').fetchone()[0],'MERCHANT_ASSOCIATED')
  def test_unsupported_token_not_ingested(self):
   d=connect(':memory:');d.execute("insert into discovery_snapshots(id,started_at,status,page_size,max_pages) values('s','t','PARTIAL_SNAPSHOT',1,1)");d.execute("insert into resource_observations values('s','r','t','h',?)",('{"accepts":[{"payTo":"0x'+'11'*20+'"}]}',))
